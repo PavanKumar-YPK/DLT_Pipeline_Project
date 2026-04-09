@@ -1,0 +1,25 @@
+resources:
+  jobs:
+    DLT_Pipeline_Project_Job:
+      name: DLT_Pipeline_Project_Job
+      tasks:
+        - task_key: Ingestion_bronze
+          notebook_task:
+            notebook_path: ../src/notebooks/ingestion_bronze.ipynb
+            source: WORKSPACE
+        - task_key: Silver_Transformations
+          depends_on:
+            - task_key: Ingestion_bronze
+          pipeline_task:
+            pipeline_id: 3defb91a-1d52-435d-8f5c-264a8eb3e905
+            full_refresh: false
+        - task_key: Earthquake_Dashboards
+          depends_on:
+            - task_key: Silver_Transformations
+          dashboard_task:
+            subscription: {}
+            warehouse_id: 4db69c956b1f1642
+            dashboard_id: 01f126efef001d06a847c1b8a3d59c8c
+      queue:
+        enabled: true
+      performance_target: PERFORMANCE_OPTIMIZED
