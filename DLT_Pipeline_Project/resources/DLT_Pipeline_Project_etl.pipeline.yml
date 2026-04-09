@@ -1,0 +1,17 @@
+# The main pipeline for DLT_Pipeline_Project
+
+resources:
+  pipelines:
+    DLT_Pipeline_Project_etl:
+      name: Silver_Transformations
+      libraries:
+        - glob:
+            include: ../src/DLT_Pipeline/Silver_Transformations/transformations/**
+      schema: silver
+      continuous: false
+      development: false
+      photon: true
+      channel: CURRENT
+      catalog: dlt_pipeline_project
+      serverless: true
+      root_path: ../src/DLT_Pipeline/Silver_Transformations

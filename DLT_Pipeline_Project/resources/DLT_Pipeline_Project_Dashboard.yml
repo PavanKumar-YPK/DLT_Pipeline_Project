@@ -1,0 +1,6 @@
+resources:
+  dashboards:
+    DLT_Pipeline_Earthquake_Dashboard:
+      display_name: 'DLT_Pipeline_Earthquake_Dashboard'
+      file_path: '../src/Dashboards/DLT_Pipeline_Earthquake_Dashboard.lvdash.json'
+      warehouse_id: 4db69c956b1f1642

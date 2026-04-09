@@ -1,0 +1,366 @@
+{
+  "datasets": [
+    {
+      "name": "92c992ab",
+      "displayName": "DLT_Pipeline_Earthquake_Dataset",
+      "queryLines": [
+        "select * from silver.earthquake_data_final"
+      ],
+      "catalog": "dlt_pipeline_project",
+      "schema": "default"
+    },
+    {
+      "name": "3beb8836",
+      "displayName": "Earthquake_Type",
+      "queryLines": [
+        "select \n",
+        "count(*) as total_magnitude_bucket,\n",
+        "magnitude_bucket\n",
+        "from (\n",
+        "    select case when mag<2 then 'Micro (<2)'\n",
+        "    when mag between 2 and 3 then 'Minor (2-3)'\n",
+        "    when mag between 3 and 4 then 'Light (3-4)'\n",
+        "    else 'Moderate (4+)'\n",
+        "    end as magnitude_bucket\n",
+        "    from silver.earthquake_data_final\n",
+        ")\n",
+        "group by magnitude_bucket\n",
+        "\n",
+        "\n"
+      ],
+      "catalog": "dlt_pipeline_project",
+      "schema": "default"
+    },
+    {
+      "name": "683def38",
+      "displayName": "Earthquake_Country_Places",
+      "queryLines": [
+        "select \n",
+        "count(*) as event_count,\n",
+        "case when size(split(place,', '))=1 then split(place,', ')[0]\n",
+        "else split(place,', ')[1] end as country\n",
+        "from (\n",
+        "select\n",
+        "time,\n",
+        "title,\n",
+        "mag,\n",
+        "longitude,\n",
+        "place,\n",
+        "latitude\n",
+        "from silver.earthquake_data_final\n",
+        ")\n",
+        "group by country"
+      ],
+      "catalog": "dlt_pipeline_project",
+      "schema": "default"
+    }
+  ],
+  "pages": [
+    {
+      "name": "7efff4ad",
+      "displayName": "Earthquake_Dashboard",
+      "layout": [
+        {
+          "widget": {
+            "name": "40f379fa",
+            "multilineTextboxSpec": {
+              "lines": [
+                "# <span style=\"font-size: 24px;\">Earthquake Dashboard - Summary</span>"
+              ]
+            },
+            "specExtensions": {
+              "widgetBorderColor": {
+                "dark": "#0B8AF3"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "earthquake-details",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "92c992ab",
+                  "fields": [
+                    {
+                      "name": "mag",
+                      "expression": "`mag`"
+                    },
+                    {
+                      "name": "place",
+                      "expression": "`place`"
+                    },
+                    {
+                      "name": "time",
+                      "expression": "`time`"
+                    },
+                    {
+                      "name": "status",
+                      "expression": "`status`"
+                    },
+                    {
+                      "name": "tsunami",
+                      "expression": "`tsunami`"
+                    },
+                    {
+                      "name": "url",
+                      "expression": "`url`"
+                    },
+                    {
+                      "name": "detail",
+                      "expression": "`detail`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Earthquake Details"
+              },
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "mag"
+                  },
+                  {
+                    "fieldName": "place"
+                  },
+                  {
+                    "fieldName": "time"
+                  },
+                  {
+                    "fieldName": "status"
+                  },
+                  {
+                    "fieldName": "tsunami"
+                  },
+                  {
+                    "fieldName": "url"
+                  },
+                  {
+                    "fieldName": "detail"
+                  }
+                ]
+              }
+            },
+            "specExtensions": {
+              "widgetBorderColor": {
+                "dark": "#0687F3"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 7,
+            "width": 12,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "earthquake-map-locations",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "92c992ab",
+                  "fields": [
+                    {
+                      "name": "latitude",
+                      "expression": "`latitude`"
+                    },
+                    {
+                      "name": "longitude",
+                      "expression": "`longitude`"
+                    },
+                    {
+                      "name": "tsunami",
+                      "expression": "`tsunami`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Earthquake Map Locations"
+              },
+              "mark": {
+                "size": -0.8
+              },
+              "widgetType": "symbol-map",
+              "encodings": {
+                "coordinates": {
+                  "latitude": {
+                    "fieldName": "latitude"
+                  },
+                  "longitude": {
+                    "fieldName": "longitude"
+                  }
+                },
+                "size": {
+                  "fieldName": "tsunami",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              }
+            },
+            "specExtensions": {
+              "widgetBorderColor": {
+                "dark": "#0488F7"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 12,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "magnitude-info",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "3beb8836",
+                  "fields": [
+                    {
+                      "name": "total_magnitude_bucket",
+                      "expression": "`total_magnitude_bucket`"
+                    },
+                    {
+                      "name": "magnitude_bucket",
+                      "expression": "`magnitude_bucket`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Magnitude Info"
+              },
+              "widgetType": "pie",
+              "encodings": {
+                "angle": {
+                  "fieldName": "total_magnitude_bucket",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Magnitude Bucket"
+                },
+                "color": {
+                  "fieldName": "magnitude_bucket",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                },
+                "extra": [
+                  {
+                    "fieldName": "magnitude_bucket"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 13,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "earthquakes",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "683def38",
+                  "fields": [
+                    {
+                      "name": "event_count",
+                      "expression": "`event_count`"
+                    },
+                    {
+                      "name": "country",
+                      "expression": "`country`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "showTitle": true,
+                "title": "Earthquakes countries"
+              },
+              "widgetType": "pie",
+              "encodings": {
+                "angle": {
+                  "fieldName": "event_count",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Earthquake Places"
+                },
+                "color": {
+                  "fieldName": "country",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 13,
+            "width": 6,
+            "height": 6
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
